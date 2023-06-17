@@ -5,7 +5,6 @@ import java.io.File;
 public class Tree {
 
     /**
-     * TODO: Доработать метод print, необходимо распечатывать директории и файлы
      * @param file
      * @param indent
      * @param isLast
@@ -27,16 +26,24 @@ public class Tree {
             return;
 
         int subDirTotal = 0;
-        for (int i = 0; i < files.length; i++){
-           if (files[i].isDirectory())
-               subDirTotal++;
+        int subFileTotal = 0;
+        for (File value : files) {
+            if (value.isDirectory()) {
+                subDirTotal++;
+            } else {
+                subFileTotal++;
+            }
         }
 
         int subDirCounter = 0;
-        for (int i = 0; i < files.length; i++){
-            if (files[i].isDirectory()){
-                print(files[i], indent, subDirCounter  == subDirTotal - 1);
+        int subFileCounter = 0;
+        for (File value : files) {
+            if (value.isDirectory()) {
+                print(value, indent, subDirCounter == subDirTotal - 1);
                 subDirCounter++;
+            } else {
+                print(value, indent, subFileCounter == subFileTotal - 1);
+                subFileCounter++;
             }
         }
 

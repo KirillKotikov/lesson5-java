@@ -1,17 +1,26 @@
 package ru.geekbrains.lesson5;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class Program {
 
     /**
-     1.  Создать 2 текстовых файла, примерно по 50-100 символов в каждом(особого значения не имеет);
-     2.  Написать метод, «склеивающий» эти файлы, то есть вначале идет текст из первого файла, потом текст из второго.
-     3.* Написать метод, который проверяет, присутствует ли указанное пользователем слово в файле (работаем только с латиницей).
-     4.* Написать метод, проверяющий, есть ли указанное слово в папке
+     * 1.  Создать 2 текстовых файла, примерно по 50-100 символов в каждом(особого значения не имеет);
+     * 2.  Написать метод, «склеивающий» эти файлы, то есть вначале идет текст из первого файла, потом текст из второго.
+     * 3.* Написать метод, который проверяет, присутствует ли указанное пользователем слово в файле (работаем только с латиницей).
+     * 4.* Написать метод, проверяющий, есть ли указанное слово в папке
      */
 
     private static final Random random = new Random();
@@ -23,51 +32,57 @@ public class Program {
     public static void main(String[] args) throws IOException {
         //String str = generateSymbols(15);
         //System.out.println(str);
-        writeFileContents("sample01.txt", 30, 5);
-        System.out.println(searchInFile("sample01.txt", TO_SEARCH));
-
-        writeFileContents("sample02.txt", 30, 5);
-        System.out.println(searchInFile("sample02.txt", TO_SEARCH));
-        concatenate("sample01.txt", "sample02.txt", "sample01_out.txt");
-        System.out.println(searchInFile("sample01_out.txt", TO_SEARCH));
-
+//        writeFileContents("sample01.txt", 30, 5);
+//        System.out.println(searchInFile("sample01.txt", TO_SEARCH));
+//
+//        writeFileContents("sample02.txt", 30, 5);
+//        System.out.println(searchInFile("sample02.txt", TO_SEARCH));
+//        concatenate("sample01.txt", "sample02.txt", "sample01_out.txt");
+//        System.out.println(searchInFile("sample01_out.txt", TO_SEARCH));
+//
         Tree.print(new File("."), "", true);
+//
+//        String[] fileNames = new String[10];
+//        for (int i = 0; i < fileNames.length; i++){
+//            fileNames[i] = "file_" + i + ".txt";
+//            writeFileContents(fileNames[i], 100, 4);
+//            System.out.printf("Файл %s создан.\n", fileNames[i]);
+//        }
+//
+//        List<String> result = searchMatch(fileNames, TO_SEARCH);
+//        for (String s: result) {
+//            System.out.printf("Файл %s содержит искомое слово '%s'\n", s, TO_SEARCH);
+//        }
 
-        String[] fileNames = new String[10];
-        for (int i = 0; i < fileNames.length; i++){
-            fileNames[i] = "file_" + i + ".txt";
-            writeFileContents(fileNames[i], 100, 4);
-            System.out.printf("Файл %s создан.\n", fileNames[i]);
-        }
 
-        List<String> result = searchMatch(fileNames, TO_SEARCH);
-        for (String s: result) {
-            System.out.printf("Файл %s содержит искомое слово '%s'\n", s, TO_SEARCH);
-        }
+        copyDirectoryFiles(new File("src/main/java/ru/geekbrains/lesson5"),
+                "./backup");
 
 
     }
 
     /**
      * Метод генерации некоторой последовательности символов
+     *
      * @param amount кол-во символов
      * @return последовательность символов
      */
-    private static String generateSymbols(int amount){
+    private static String generateSymbols(int amount) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < amount; i++)
-            stringBuilder.append((char)random.nextInt(CHAR_BOUND_L, CHAR_BOUND_H + 1));
+            stringBuilder.append((char) random.nextInt(CHAR_BOUND_L, CHAR_BOUND_H + 1));
         return stringBuilder.toString();
     }
 
     /**
      * Записать последовательность символов в файл
+     *
      * @param fileName имя файла
-     * @param length длина последовательности символов
+     * @param length   длина последовательности символов
      * @throws IOException
      */
     private static void writeFileContents(String fileName, int length) throws IOException {
-        try(FileOutputStream fileOutputStream = new FileOutputStream(fileName)){
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
             fileOutputStream.write(generateSymbols(length).getBytes());
         }
         /*FileOutputStream fileOutputStream = new FileOutputStream(fileName);
@@ -79,18 +94,18 @@ public class Program {
     /**
      * Записать последовательность символов в файл, при этом, случайным образом дописать осознанное слово
      * для поиска
+     *
      * @param fileName имя файла
-     * @param length длина последовательности символов
-     * @param words кол-во слов для поиска
+     * @param length   длина последовательности символов
+     * @param words    кол-во слов для поиска
      * @throws IOException
      */
     private static void writeFileContents(String fileName, int length, int words) throws IOException {
-        try(FileOutputStream fileOutputStream = new FileOutputStream(fileName)){
-            for (int i = 0; i < words; i++){
-                if (random.nextInt(5) == 5 / 2){
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+            for (int i = 0; i < words; i++) {
+                if (random.nextInt(5) == 5 / 2) {
                     fileOutputStream.write(TO_SEARCH.getBytes());
-                }
-                else {
+                } else {
                     fileOutputStream.write(generateSymbols(length).getBytes());
                 }
             }
@@ -99,7 +114,6 @@ public class Program {
     }
 
     /**
-     *
      * @param fileIn1
      * @param fileIn2
      * @param fileOut
@@ -107,16 +121,16 @@ public class Program {
      */
     private static void concatenate(String fileIn1, String fileIn2, String fileOut) throws IOException {
         // На запись
-        try(FileOutputStream fileOutputStream = new FileOutputStream(fileOut)){
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileOut)) {
             int c;
             // На чтение
-            try(FileInputStream fileInputStream = new FileInputStream(fileIn1)){
-                while ( (c = fileInputStream.read()) != -1)
+            try (FileInputStream fileInputStream = new FileInputStream(fileIn1)) {
+                while ((c = fileInputStream.read()) != -1)
                     fileOutputStream.write(c);
             }
             // На чтение
-            try(FileInputStream fileInputStream = new FileInputStream(fileIn2)){
-                while ( (c = fileInputStream.read()) != -1)
+            try (FileInputStream fileInputStream = new FileInputStream(fileIn2)) {
+                while ((c = fileInputStream.read()) != -1)
                     fileOutputStream.write(c);
             }
         }
@@ -124,26 +138,26 @@ public class Program {
 
     /**
      * Определить, содержится ли в файле искомое слово
+     *
      * @param fileName имя файла
-     * @param search строка для поиска
+     * @param search   строка для поиска
      * @return результат поиска
      */
-    private static boolean searchInFile(String fileName, String search) throws IOException{
-        try(FileInputStream fileInputStream = new FileInputStream(fileName)){
+    private static boolean searchInFile(String fileName, String search) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
             byte[] searchData = search.getBytes();
             int c;
             int i = 0;
-            while ((c = fileInputStream.read()) != - 1){
-                if (c == searchData[i]){
+            while ((c = fileInputStream.read()) != -1) {
+                if (c == searchData[i]) {
                     i++;
-                }
-                else {
+                } else {
                     i = 0;
                     if (c == searchData[i]) // GeekBrainGeekBrains
                         i++;
                     continue;
                 }
-                if (i == searchData.length){
+                if (i == searchData.length) {
                     return true;
                 }
             }
@@ -155,12 +169,12 @@ public class Program {
         List<String> list = new ArrayList<>();
         File path = new File(new File(".").getCanonicalPath());
         File[] dir = path.listFiles();
-        for (int i = 0; i < dir.length; i++){
+        for (int i = 0; i < dir.length; i++) {
             if (dir[i].isDirectory())
                 continue;
-            for (int j = 0; j < files.length; j++){
-                if (dir[i].getName().equals(files[j])){
-                    if (searchInFile(dir[i].getName(), search)){
+            for (int j = 0; j < files.length; j++) {
+                if (dir[i].getName().equals(files[j])) {
+                    if (searchInFile(dir[i].getName(), search)) {
                         list.add(dir[i].getName());
                         break;
                     }
@@ -170,6 +184,18 @@ public class Program {
         return list;
     }
 
-
+    // 1. Написать функцию, создающую резервную копию всех файлов
+// в директории(без поддиректорий) во вновь созданную папку ./backup
+    private static void copyDirectoryFiles(File directory, String copyDirectoryName) throws IOException {
+//        File copyDirectory = new File(copyDirectoryName);
+//        copyDirectory.mkdir();
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
+            if (file.isFile()) {
+                String pathName = copyDirectoryName + "/" + file.getName();
+                Files.copy(file.toPath(),
+                        new File(pathName).toPath(), REPLACE_EXISTING, COPY_ATTRIBUTES, NOFOLLOW_LINKS);
+            }
+        }
+    }
 
 }
